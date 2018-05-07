@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+apply from: 'version.gradle'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId "com.konka.gradleconfig"
+        minSdkVersion 17
+        targetSdkVersion 26
+        versionCode appVersionCode
+        versionName appVersionName
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//        proguardFiles getDefaultProguardFile("defaultConfig也有proguardFiels方法")
+    }
+
+    signingConfigs {
+        signRelease {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file("F:/key/platform.keystore")
+            storePassword "android"
+        }
+        signDebug {
+
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            multiDexEnabled true
+            signingConfig signingConfigs.signRelease
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
+            applicationIdSuffix ".debug"
+        }
+    }
+
+    applicationVariants.all {
+        variant ->
+            def parent = new File(project.rootDir.absolutePath + "/${project.name}/build/outputs/hwanjApk")
+            variant.getPackageApplication().outputDirectory = parent
+            variant.getPackageApplication().outputScope.apkDatas.each {
+                apkData ->
+                    def fileName = "gradleconfig_${variant.buildType.name}_v${variant.versionName}_${buildTime()}.apk"
+                    apkData.outputFileName = fileName
+            }
+    }
+
+
+}
+
+def buildTime() {
+    def date = new Date()
+    return date.format("yyyyMMdd")
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:26.0.0-beta1'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:0.5'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
+}
