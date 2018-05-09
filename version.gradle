@@ -1,4 +1,59 @@
-ext {
-    appVersionCode = 1
-    appVersionName = "1.0.0"
+def getVersionCode() {
+    def cmd = "git rev-list HEAD --first-parent --count"
+    def text = cmd.execute().text.trim()
+    println text
+    def version = cmd.execute().text.trim().toInteger()
+    return version
 }
+
+def getVersionTag() {
+    def cmd = "git describe --tags"
+    def versionTag = cmd.execute().text
+    System.getenv()
+    println versionTag
+    def pattern = "-(\\d+)-g"
+    def matcher = versionTag =~ pattern
+
+    if (matcher) {
+        versionTag = versionTag.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        versionTag = versionTag + ".0"
+    }
+
+    return versionTag
+}
+
+def gitVersionCode() {
+    def output = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', 'HEAD', '--first-parent', '--count'
+        standardOutput = output
+    }
+    output.toString().trim().toInteger()
+}
+
+def gitVersionTag() {
+    def output = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git','describe','--tags'
+        standardOutput = output
+    }
+    def versionTag = output.toString().trim()
+    def pattern = "-(\\d+)-g"
+    def matcher = versionTag =~ pattern
+
+    if (matcher) {
+        versionTag = versionTag.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        versionTag = versionTag + ".0"
+    }
+    return versionTag
+}
+
+ext {
+    appVersionCode = gitVersionCode()
+    appVersionName = gitVersionTag()
+    println appVersionCode
+    println appVersionName
+}
+
