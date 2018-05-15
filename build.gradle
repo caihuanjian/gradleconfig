@@ -17,14 +17,16 @@ android {
         resConfigs 'zh' //指定中文类型的资源才打包到apk中
     }
 
-    flavorDimensions "dimension1", "dimension2"
+    flavorDimensions "dimension1", "dimension2"//定义了两个维度（分组），顺序决定优先级
     productFlavors {
         google {
+            applicationId 'com.hwanj.google'
             dimension 'dimension1'
             resValue("string", "tip", "google 欢迎你")
             resValue("id", "tipId", "1122002")
         }
         baidu {
+            applicationId 'com.hwanj.baidu'
             dimension 'dimension2'
             resValue("string", "tip", "baidu 欢迎你")
         }
@@ -64,8 +66,8 @@ android {
 
     applicationVariants.all {
         variant ->
-            def parent = new File(project.rootDir.absolutePath + "/${project.name}/build/outputs/hwanjApk")
-            variant.getPackageApplication().outputDirectory = parent
+//            def parent = new File(project.rootDir.absolutePath + "/${project.name}/build/outputs/hwanjApk")
+//            variant.getPackageApplication().outputDirectory = parent
             variant.getPackageApplication().outputScope.apkDatas.each {
                 apkData ->
                     def fileName = "gradleconfig_${variant.buildType.name}_v${variant.versionName}_${buildTime()}.apk"
@@ -89,6 +91,13 @@ android {
 
     dexOptions {
 
+    }
+
+    lintOptions {
+        abortOnError true     //检查到错误时停止构建
+        warningsAsErrors true
+        check 'NewApi'
+        ignoreWarnings false   //是否忽略警告
     }
 }
 
